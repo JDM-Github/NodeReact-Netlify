@@ -1,0 +1,119 @@
+.navigation {
+	z-index: 1;
+	position: relative;
+	width: 100vw;
+	height: 80px;
+	background-color: black;
+
+	display: flex;
+	justify-content: space-between;
+}
+
+.navigation .left {
+	position: relative;
+	width: 50%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.navigation .left .logo {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.navigation .left img {
+	position: relative;
+	aspect-ratio: 1;
+	height: 100%;
+}
+
+.navigation .left * {
+	margin-left: 10px;
+}
+
+.navigation .right {
+	position: relative;
+	width: 50%;
+	height: 100%;
+
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+}
+
+.navigation .right .cart-design {
+	position: relative;
+
+	width: 60px;
+	height: 60px;
+	margin-right: 30px;
+}
+
+.navigation .right .buttons {
+	position: relative;
+	border: 0;
+	height: 100%;
+	color: white;
+	font-size: 1.2rem;
+
+	margin-right: 30px;
+	text-decoration: none;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.navigation .right .buttons:hover {
+	color: #ddd;
+}
+
+.navigation .right .drop-down-item {
+	position: relative;
+	background-color: black;
+	color: white;
+	border: 1px solid #aaa;
+	animation: none;
+}
+.navigation .right .drop-down-item:hover {
+	background-color: #555 !important;
+}
+
+.typography {
+	font-size: 3rem !important;
+}
+
+@media (max-width: 1200px) {
+	.navigation {
+		height: 60px;
+	}
+	.typography {
+		font-size: 2.2rem !important;
+	}
+}
+@media (max-width: 900px) {
+	.navigation {
+		height: 50px;
+	}
+	.search-box {
+		display: none;
+	}
+	.typography {
+		font-size: 2rem !important;
+	}
+}
+
+@media (max-width: 800px) {
+	.navigation .right .buttons {
+		margin-right: 20px;
+		font-size: 1rem;
+	}
+}
+
+@media (max-width: 600) {
+	.typography {
+		font-size: 1.5rem !important;
+	}
+}

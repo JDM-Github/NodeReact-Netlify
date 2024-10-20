@@ -1,0 +1,39 @@
+.admin-dashboard {
+	position: fixed;
+	width: 20vw;
+	height: 100%;
+	background-color: black;
+}
+.admin-dashboard > img {
+	width: 50%;
+	margin-left: 25%;
+	aspect-ratio: 1;
+}
+.admin-dashboard .admin-top {
+	color: white;
+	width: 100%;
+	text-align: center;
+	padding: 10px;
+	font-size: 2rem;
+	font-weight: bold;
+}
+
+.admin-buttons {
+	width: 100%;
+	text-align: center;
+	padding: 10px;
+	font-size: 1.2rem;
+	color: white;
+	background-color: #222;
+	outline: none;
+	border: none;
+	margin-bottom: 5px;
+}
+.admin-buttons:hover {
+	background-color: #444;
+}
+.nav-link.active .admin-buttons {
+	background-color: #333;
+	color: white;
+	font-weight: bold;
+}

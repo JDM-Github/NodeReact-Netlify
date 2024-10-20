@@ -1,0 +1,19 @@
+.chat-head {
+	position: relative;
+}
+
+.feature-product {
+	margin-top: 10px;
+}
+
+@media (max-width: 1200px) {
+	.feature-product {
+		font-size: 1.5rem;
+	}
+}
+
+@media (max-width: 900px) {
+	.feature-product {
+		display: none;
+	}
+}
