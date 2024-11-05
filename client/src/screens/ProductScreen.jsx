@@ -251,11 +251,33 @@ const Review = ({ userInfo, product, setUpdate }) => {
 								value={selectedRating}
 								onChange={handleRatingChange}
 							>
-								<option value={1}>RATING 1</option>
-								<option value={2}>RATING 2</option>
-								<option value={3}>RATING 3</option>
-								<option value={4}>RATING 4</option>
-								<option value={5}>RATING 5</option>
+								<option style={{ fontSize: "16px" }} value={1}>
+									★
+								</option>
+								<option
+									style={{ color: "gold", fontSize: "16px" }}
+									value={2}
+								>
+									★★
+								</option>
+								<option
+									style={{ color: "gold", fontSize: "16px" }}
+									value={3}
+								>
+									★★★
+								</option>
+								<option
+									style={{ color: "gold", fontSize: "16px" }}
+									value={4}
+								>
+									★★★★
+								</option>
+								<option
+									style={{ color: "gold", fontSize: "16px" }}
+									value={5}
+								>
+									★★★★★
+								</option>
 							</select>
 							<Form.Control
 								className="image-form"

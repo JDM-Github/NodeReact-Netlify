@@ -7,16 +7,10 @@ const expressAsyncHandler = require("express-async-handler");
 
 const { generateToken, isAuth } = require("./utils.js");
 const { User } = require("./models2");
+const { where } = require("sequelize");
 
 dotenv.config();
 const userRouter = express.Router();
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: "kcaligam@ccc.edu.ph",
-		pass: "qmcm hhlk pohs vyrh",
-	},
-});
 
 const generateVerificationToken = (email) => {
 	return jwt.sign({ email }, "somethingsecret", { expiresIn: "1h" });
@@ -32,17 +26,15 @@ userRouter.get(
 		}
 		try {
 			const decoded = jwt.verify(token, "somethingsecret");
-			const user = await User.findOne({ email: decoded.email });
+			const user = await User.findOne({
+				where: { email: decoded.email },
+			});
 			if (!user) {
 				return res
 					.status(400)
 					.json({ message: "Invalid token or user not found" });
 			}
-			if (user.isVerified) {
-				return res
-					.status(400)
-					.json({ message: "User already verified" });
-			}
+
 			user.isVerified = true;
 			await user.save();
 			const htmlContent = `
@@ -119,7 +111,7 @@ userRouter.post(
 	"/forgot-password",
 	expressAsyncHandler(async (req, res) => {
 		const { email } = req.body;
-		const user = await User.findOne({ email });
+		const user = await User.findOne({ where: { email } });
 
 		if (!user) {
 			return res.status(404).json({ message: "User not found" });
@@ -142,7 +134,13 @@ userRouter.post(
             `,
 		};
 
-		// Send email
+		const transporter = nodemailer.createTransport({
+			service: "gmail",
+			auth: {
+				user: "kcaligam@ccc.edu.ph",
+				pass: "qmcm hhlk pohs vyrh",
+			},
+		});
 		await transporter.sendMail(mailOptions);
 
 		res.status(200).json({ message: "Password reset email sent!" });
@@ -156,7 +154,9 @@ userRouter.post(
 		// Verify the token
 		try {
 			const decoded = jwt.verify(token, "somethingsecret");
-			const user = await User.findOne({ email: decoded.email });
+			const user = await User.findOne({
+				where: { email: decoded.email },
+			});
 
 			if (!user) {
 				return res.status(404).json({ message: "User not found" });
@@ -175,7 +175,7 @@ userRouter.post(
 userRouter.get("/check-verification-status", async (req, res) => {
 	const { email } = req.query;
 	try {
-		const user = await User.findOne({ email });
+		const user = await User.findOne({ where: { email } });
 		if (!user) {
 			return res.status(404).send("User not found");
 		}
@@ -189,30 +189,9 @@ userRouter.get("/check-verification-status", async (req, res) => {
 });
 userRouter.get(
 	"/",
-	isAuth,
 	expressAsyncHandler(async (req, res) => {
-		const users = await User.findAll({});
+		const users = await User.findAll();
 		res.send(users);
-	})
-);
-
-userRouter.get(
-	"/test",
-	expressAsyncHandler(async (req, res) => {
-		res.json("TEST");
-	})
-);
-
-userRouter.get(
-	"/:id",
-	isAuth,
-	expressAsyncHandler(async (req, res) => {
-		const user = await User.findByPk(req.params.id);
-		if (user) {
-			res.send(user);
-		} else {
-			res.status(404).send({ message: "USER DO NOT EXIST. ERROR 404" });
-		}
 	})
 );
 
@@ -239,7 +218,7 @@ userRouter.delete(
 	expressAsyncHandler(async (req, res) => {
 		const user = await User.findByPk(req.params.id);
 		if (user && !user.isAdmin) {
-			await user.deleteOne();
+			await user.destroy();
 			res.send({ message: "Account Has Been Deleted" });
 		} else if (user && user.isAdmin) {
 			res.status(403).send({
@@ -260,12 +239,18 @@ userRouter.post(
 				res.status(401).send({
 					message: "Please verify your email before sign in.",
 				});
+				return;
 			}
 			if (bcrypt.compareSync(req.body.password, user.password)) {
 				res.send({
 					id: user.id,
 					name: user.name,
+					middlename: user.middlename,
 					lastname: user.lastname,
+					suffix: user.suffix,
+					birthday: user.birthday,
+					location: user.location,
+					phoneNum: user.phoneNum,
 					email: user.email,
 					password: user.password,
 					isAdmin: user.isAdmin,
@@ -275,14 +260,18 @@ userRouter.post(
 				return;
 			}
 		}
-		res.status(401).send({ message: "Invalid Input. Error 401" });
+		res.status(401).send({
+			message: "Wrong email or password. Please try again.",
+		});
 	})
 );
 
 userRouter.post(
 	"/signup",
 	expressAsyncHandler(async (req, res) => {
-		const existingUser = await User.findOne({ email: req.body.email });
+		const existingUser = await User.findOne({
+			where: { email: req.body.email },
+		});
 		if (existingUser) {
 			return res.status(400).json({ message: "User already exists" });
 		}
@@ -294,6 +283,7 @@ userRouter.post(
 			lastname: req.body.lastname,
 			suffix: req.body.suffix,
 			email: req.body.email,
+			bday: new Date(req.body.bday),
 			password: hashedPassword,
 			isAdmin: req.body.isAdmin || false,
 			isCustomer: req.body.isCustomer || false,
@@ -301,10 +291,7 @@ userRouter.post(
 			verificationToken: verificationToken,
 		});
 		const user = await newUser.save();
-		res.status(200).json({
-			message:
-				"Registration successful! Please check your email to verify your account.",
-		});
+
 		const verificationUrl = `https://kca-test-website.netlify.app/.netlify/functions/api/users/verify-email?token=${verificationToken}`;
 		const mailOptions = {
 			from: `"RYB Officials"<${"kcaligam@ccc.edu.ph"}>`,
@@ -393,6 +380,13 @@ userRouter.post(
         </html>
     `,
 		};
+		const transporter = nodemailer.createTransport({
+			service: "gmail",
+			auth: {
+				user: "kcaligam@ccc.edu.ph",
+				pass: "qmcm hhlk pohs vyrh",
+			},
+		});
 		await transporter.sendMail(mailOptions);
 		res.status(200).json({
 			message:
@@ -401,28 +395,54 @@ userRouter.post(
 	})
 );
 
-userRouter.put(
+userRouter.post(
 	"/profile",
 	isAuth,
 	expressAsyncHandler(async (req, res) => {
-		const user = await User.findByPk(req.user.id);
+		const user = await User.findByPk(req.body.id);
 		if (user) {
 			user.name = req.body.name || user.name;
+			user.middlename = req.body.middlename || user.middlename;
 			user.lastname = req.body.lastname || user.lastname;
-			user.email = req.body.email || user.email;
+			user.suffix = req.body.suffix || user.suffix;
+
+			user.location = req.body.location || user.location;
+			user.phoneNum = req.body.phoneNum || user.phoneNum;
+			user.birthday = req.body.birthday || user.birthday;
+
 			if (req.body.password) {
 				user.password = bcrypt.hashSync(req.body.password, 8);
 			}
 
 			const updatedUser = await user.save();
+
 			res.send({
 				id: updatedUser.id,
 				name: updatedUser.name,
+				middlename: updatedUser.middlename,
 				lastname: updatedUser.lastname,
+				suffix: updatedUser.suffix,
+				location: updatedUser.location,
+				phoneNum: updatedUser.phoneNum,
+				birthday: updatedUser.birthday,
 				email: updatedUser.email,
+				isRider: updatedUser.isRider,
 				isAdmin: updatedUser.isAdmin,
 				token: generateToken(updatedUser),
 			});
+		} else {
+			res.status(404).send({ message: "USER DO NOT EXIST. ERROR 404" });
+		}
+	})
+);
+
+userRouter.get(
+	"/:id",
+	isAuth,
+	expressAsyncHandler(async (req, res) => {
+		const user = await User.findByPk(req.params.id);
+		if (user) {
+			res.send(user);
 		} else {
 			res.status(404).send({ message: "USER DO NOT EXIST. ERROR 404" });
 		}

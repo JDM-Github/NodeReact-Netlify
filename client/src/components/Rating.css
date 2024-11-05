@@ -1,0 +1,4 @@
+.rating2 span {
+	-webkit-text-fill-color: gold !important;
+	-webkit-text-stroke: 2px black !important;
+}

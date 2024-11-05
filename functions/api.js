@@ -1,4 +1,5 @@
 const express = require("express");
+
 const cors = require("cors");
 const serverless = require("serverless-http");
 const path = require("path");
@@ -6,6 +7,7 @@ const bodyParser = require("body-parser");
 
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
+const fs = require("fs");
 
 const {
 	chatRouter,
@@ -18,7 +20,7 @@ const {
 	sequelize,
 } = require("./routers");
 
-const { Chat } = require("./models2.js");
+const { Chat, User, Product } = require("./models2.js");
 
 const { userRouter } = require("./userRouter.js");
 const app = express();
@@ -37,20 +39,24 @@ if (DEVELOPMENT) {
 	app.use(cors());
 }
 
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-		user: "kcaligam@ccc.edu.ph",
-		pass: "qmcm hhlk pohs vyrh",
-	},
-});
-transporter.verify(function (error, success) {
-	if (error) {
-		console.log("Error with transporter", error);
-	} else {
-		console.log("Nodemailer is ready to send emails.");
-	}
-});
+function getTransporter() {
+	const transporter = nodemailer.createTransport({
+		service: "gmail",
+		auth: {
+			user: "kcaligam@ccc.edu.ph",
+			pass: "qmcm hhlk pohs vyrh",
+		},
+	});
+	transporter.verify(function (error, success) {
+		if (error) {
+			``;
+			console.log("Error with transporter", error);
+		} else {
+			console.log("Nodemailer is ready to send emails.");
+		}
+	});
+	return transporter;
+}
 
 cron.schedule("0 0 * * *", async () => {
 	try {
@@ -102,17 +108,44 @@ router.get("/connect", async (req, res) => {
 	}
 });
 
-router.get("/reset-chats", async (req, res) => {
-	try {
-		await Chat.truncate();
-		res.send({ message: "All chats have been reset successfully." });
-	} catch (error) {
-		res.status(500).send({
-			message: "Error resetting chats",
-			error: error.message,
-		});
-	}
-});
+// router.get("/save-product", async (req, res) => {
+// 	try {
+// 		const users = await Product.findAll();
+// 		const userBackup = JSON.stringify(users);
+// 		fs.writeFileSync("productBackup.json", userBackup);
+// 		console.log("User data backed up successfully.");
+// 	} catch (error) {
+// 		res.status(500).send({
+// 			message: "Error resetting users",
+// 			error: error.message,
+// 		});
+// 	}
+// });
+
+// router.get("/reset-account", async (req, res) => {
+// 	try {
+// 		await Chat.truncate();
+// 		await User.truncate();
+// 		res.send({ message: "All users have been reset successfully." });
+// 	} catch (error) {
+// 		res.status(500).send({
+// 			message: "Error resetting users",
+// 			error: error.message,
+// 		});
+// 	}
+// });
+
+// router.get("/reset-chats", async (req, res) => {
+// 	try {
+// 		await Chat.truncate();
+// 		res.send({ message: "All chats have been reset successfully." });
+// 	} catch (error) {
+// 		res.status(500).send({
+// 			message: "Error resetting chats",
+// 			error: error.message,
+// 		});
+// 	}
+// });
 
 router.get("*", (req, res) => {
 	res.sendFile(path.join(__dirname, "../client/build"), "index.html");

@@ -14,13 +14,34 @@
 	font-size: 1rem;
 	width: 150px;
 	margin-left: 10px;
+	border-radius: 20px;
+	border: 2px solid #ee483e;
+	background-color: #fccd91;
+	color: #333;
+	font-weight: bold;
 }
 
 .text-end-text {
 	margin-left: 10px;
 	display: none;
 }
-@media (max-width: 1000px) {
+
+.sorter {
+	display: flex;
+	flex-direction: column;
+	width: 20%;
+	gap: 10px;
+}
+
+@media (max-width: 1200px) {
+	.search {
+		flex-direction: column;
+	}
+	.sorter {
+		flex-direction: row;
+		width: 100%;
+		justify-content: center;
+	}
 	.sort-select {
 		font-size: 0.8rem;
 		width: 100px;

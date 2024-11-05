@@ -114,16 +114,17 @@ function SigninScreen() {
 			navigate(redirect || "/");
 		} catch (err) {
 			const errorMessage = getError(err);
-			if (errorMessage.includes("401")) {
+
+			if (errorMessage.includes("Wrong")) {
 				setAttempts((prev) => prev + 1);
 				if (attempts + 1 >= 3) {
-					const lockTime = new Date().getTime() + 90 * 1000;
+					const lockTime = new Date().getTime() + 15 * 1000;
 					setLockoutTime(lockTime);
 					toast.error(
-						"Too many attempts. You are locked out for 90 seconds."
+						"Too many attempts. You are locked out for 15 seconds."
 					);
 				} else {
-					toast.error("Wrong email or password. Please try again.");
+					toast.error(errorMessage);
 				}
 			} else {
 				toast.error(errorMessage);

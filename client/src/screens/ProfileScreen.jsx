@@ -31,8 +31,20 @@ export default function ProfileScreen() {
 	const { state, dispatch: ctxDispatch } = useContext(Store);
 	const { userInfo } = state;
 	const [name, setName] = useState(userInfo.name);
+	const [middlename, setMiddleName] = useState(userInfo.middlename);
 	const [lastname, setLastName] = useState(userInfo.lastname);
+	const [suffix, setSuffix] = useState(userInfo.suffix);
 	const [email, setEmail] = useState(userInfo.email);
+	const [birthday, setBirthday] = useState(
+		new Date(userInfo.birthday).toLocaleDateString("en-US", {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		})
+	);
+	const [location, setLocation] = useState(userInfo.location);
+	const [phoneNum, setPhoneNum] = useState(userInfo.phoneNum);
+
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [bday, setBday] = useState("");
@@ -55,12 +67,16 @@ export default function ProfileScreen() {
 		e.preventDefault();
 		try {
 			const data = await RequestHandler.handleRequest(
-				"put",
+				"post",
 				"users/profile",
 				{
+					id: userInfo.id,
 					name,
 					lastname,
-					email,
+					middlename,
+					suffix,
+					location,
+					phoneNum,
 					password,
 					confirmPassword,
 				},
@@ -87,127 +103,153 @@ export default function ProfileScreen() {
 			<Helmet>
 				<title>User Profile</title>
 			</Helmet>
-			<h1 className="my-3">User Profile</h1>
+			<h1 className="my-3">
+				<center>User Profile</center>
+			</h1>
 			<form onSubmit={submitHandler}>
-				<Form.Group className="mb-3" controlId="name">
-					<Box
-						sx={{
-							display: "flex",
-							gap: "5px",
-							justifyContent: "flex-start",
-							flexDirection: "row",
-						}}
-					>
-						<div
-							style={{
-								width: "36rem",
-								display: "flex",
-								flexDirection: "row",
-								gap: "10px",
-							}}
-						>
-							<TextField
-								sx={{ display: "flex", width: "50%" }}
-								label="First Name"
-								variant="outlined"
-								value={name}
-								required
-								onChange={(e) => setName(e.target.value)}
-							/>
-							<TextField
-								sx={{ display: "flex", width: "50%" }}
-								label="Surname"
-								variant="outlined"
-								value={lastname}
-								onChange={(e) => setLastName(e.target.value)}
-								required
-							/>
-							{/* <Form.Label>First Name</Form.Label><br></br>
-          <Form.Control
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            style={{width:"50%",border: "2px solid orange"}}
-          />
-          
-          <Form.Label>Last Name</Form.Label><br></br>
-          <Form.Control style={{width:"50%",border: "2px solid orange"}}/> */}
-						</div>
-					</Box>
-				</Form.Group>
-
-				<Form.Group className="mb-3" controlId="bdayGender">
-					<Box
-						sx={{
-							display: "flex",
-							gap: "5px",
-							justifyContent: "flex-start",
-							flexDirection: "row",
-						}}
-					>
-						<div
-							style={{
-								width: "36rem",
-								display: "flex",
-								flexDirection: "row",
-								gap: "10px",
-							}}
-						>
-							{/* <FormControl sx={{display: "flex", width:"50%",}}>
-                <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={gender}
-                        label="gender"
-                        required
-                        onChange={handleGender}
-                        >
-                            
-                        <MenuItem value='Male'>Male</MenuItem>
-                        <MenuItem value='Female'>Female</MenuItem>
-                    </Select>
-            </FormControl>  */}
-							<TextField
-								sx={{ display: "flex", width: "50%" }}
-								label="Month/Date/Year"
-								variant="outlined"
-								value={bday}
-								onChange={handleBday}
-								required
-							/>
-						</div>
-					</Box>
-				</Form.Group>
-
-				<Form.Group className="mb-3" controlId="name">
-					<Form.Label>Email</Form.Label>
-					<Form.Control
-						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+				<div
+					style={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "row",
+						gap: "10px",
+						marginBottom: "20px",
+					}}
+				>
+					<TextField
+						sx={{ display: "flex", width: "33%" }}
+						label="First Name"
+						variant="outlined"
+						value={name}
 						required
-						style={{ border: "2px solid orange" }}
+						onChange={(e) => setName(e.target.value)}
 					/>
-				</Form.Group>
-				<Form.Group className="mb-3" controlId="password">
-					<Form.Label>Password</Form.Label>
-					<Form.Control
-						type="password"
+					<TextField
+						sx={{ display: "flex", width: "33%" }}
+						label="Middle Name"
+						variant="outlined"
+						value={middlename}
+						required
+						onChange={(e) => setMiddleName(e.target.value)}
+					/>
+					<TextField
+						sx={{ display: "flex", width: "33%" }}
+						label="Last Name"
+						variant="outlined"
+						value={lastname}
+						required
+						onChange={(e) => setLastName(e.target.value)}
+					/>
+				</div>
+
+				<div
+					style={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "row",
+						gap: "10px",
+						marginBottom: "20px",
+					}}
+				>
+					<TextField
+						sx={{ display: "flex", width: "33%" }}
+						label="Suffix"
+						variant="outlined"
+						value={suffix}
+						onChange={(e) => setSuffix(e.target.value)}
+					/>
+					<div style={{ display: "flex", width: "33%" }} />
+					<TextField
+						sx={{ display: "flex", width: "33%" }}
+						label="Birthday"
+						variant="outlined"
+						value={birthday}
+						disabled
+					/>
+				</div>
+
+				<div
+					style={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "row",
+						gap: "10px",
+						marginBottom: "20px",
+					}}
+				>
+					<TextField
+						sx={{ display: "flex", width: "100%" }}
+						label="Address"
+						variant="outlined"
+						value={location}
+						onChange={(e) => setLocation(e.target.value)}
+					/>
+				</div>
+
+				<div
+					style={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "row",
+						gap: "10px",
+						marginBottom: "20px",
+					}}
+				>
+					<TextField
+						sx={{ display: "flex", width: "50%" }}
+						label="Phone Number"
+						variant="outlined"
+						value={phoneNum}
+						onChange={(e) => setPhoneNum(e.target.value)}
+					/>
+					<TextField
+						sx={{ display: "flex", width: "50%" }}
+						label="Email Address"
+						variant="outlined"
+						value={email}
+						disabled
+						onChange={(e) => setEmail(e.target.value)}
+					/>
+				</div>
+
+				{/* <div
+					style={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "row",
+						gap: "10px",
+						marginBottom: "20px",
+					}}
+				>
+					<TextField
+						sx={{ display: "flex", width: "100%" }}
+						label="Password"
+						variant="outlined"
+						value={password}
 						onChange={(e) => setPassword(e.target.value)}
-						style={{ border: "2px solid orange" }}
 					/>
-				</Form.Group>
-				<Form.Group className="mb-3" controlId="password">
-					<Form.Label>Confirm Password</Form.Label>
-					<Form.Control
-						type="password"
+				</div>
+				<div
+					style={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "row",
+						gap: "10px",
+						marginBottom: "20px",
+					}}
+				>
+					<TextField
+						sx={{ display: "flex", width: "100%" }}
+						label="Confirm Password"
+						variant="outlined"
+						value={confirmPassword}
 						onChange={(e) => setConfirmPassword(e.target.value)}
-						style={{ border: "2px solid orange" }}
 					/>
-				</Form.Group>
+				</div> */}
 				<div className="mb-3">
-					<Button type="submit">Update</Button>
+					<Button className="btn-secondary" type="submit">
+						UPDATE
+					</Button>
 				</div>
 			</form>
 		</div>

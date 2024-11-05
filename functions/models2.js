@@ -151,7 +151,11 @@ const User = sequelize.define(
 		lastname: { type: DataTypes.STRING, allowNull: false },
 		suffix: { type: DataTypes.STRING, allowNull: true },
 		email: { type: DataTypes.STRING, allowNull: false, unique: true },
+		birthday: { type: DataTypes.DATE, defaultValue: null },
+		location: { type: DataTypes.STRING, defaultValue: "" },
+		phoneNum: { type: DataTypes.STRING, defaultValue: "" },
 		password: { type: DataTypes.STRING, allowNull: false },
+
 		isAdmin: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,

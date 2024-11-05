@@ -205,7 +205,7 @@ function ProductEditScreen() {
 					<Form.Group className="mb-3" controlId="image">
 						<Form.Label>Image</Form.Label>
 						<Form.Control
-							value={image}
+							value="loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem"
 							onChange={(e) => setImage(e.target.value)}
 							readOnly
 						/>
@@ -227,8 +227,15 @@ function ProductEditScreen() {
 						)}
 						<ListGroup>
 							{images.map((x) => (
-								<ListGroup.Item key={x}>
-									{x}
+								<ListGroup.Item
+									key={x}
+									style={{ display: "flex" }}
+								>
+									<Form.Control
+										style={{ width: "90%" }}
+										value={x}
+										readOnly
+									/>
 									<Button
 										variant="light"
 										onClick={() => deleteFileHandler(x)}

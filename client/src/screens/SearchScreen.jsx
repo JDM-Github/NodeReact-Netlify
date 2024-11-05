@@ -136,19 +136,86 @@ function SearchScreen() {
 	};
 
 	return (
-		<div>
+		<div className="search" style={{ display: "flex" }}>
 			<Helmet>
 				<title>Search Products</title>
 			</Helmet>
 
-			<div style={{ display: "flex", justifyContent: "space-between" }}>
-				<div className="result-text">
-					<div
-						style={{
-							display: "flex",
-							marginBottom: "10px",
+			<div className="sorter">
+				<div className="text-end">
+					<div className="text-end-text">Sort By </div>
+					<select
+						className="sort-select"
+						value={order}
+						onChange={(e) => {
+							navigate(
+								getFilterUrl({
+									order: e.target.value,
+								})
+							);
 						}}
 					>
+						<option value="newest">Newest Arrivals</option>
+						<option value="lowest">Price: Low to High</option>
+						<option value="highest">Price: High to Low</option>
+					</select>
+				</div>
+
+				<div className="text-end">
+					<div className="text-end-text">Category </div>
+					<select
+						className="sort-select"
+						value={category}
+						onChange={(e) => {
+							const selectedCategory = e.target.value;
+							window.location.href = getFilterUrl({
+								category: selectedCategory,
+							});
+						}}
+					>
+						<option value="all">Category</option>
+						{categories.map((c) => (
+							<option key={c.category} value={c.category}>
+								{c.category}
+							</option>
+						))}
+					</select>
+				</div>
+
+				<div className="text-end">
+					<div className="text-end-text">Price </div>
+					<select
+						className="sort-select"
+						value={price}
+						onChange={(e) => {
+							const selectedPrice = e.target.value;
+							window.location.href = getFilterUrl({
+								price: selectedPrice,
+							});
+						}}
+					>
+						<option value="all">Price</option>
+						{prices.map((p) => (
+							<option key={p.value} value={p.value}>
+								{p.name}
+							</option>
+						))}
+					</select>
+				</div>
+			</div>
+
+			<div>
+				<div
+					className="result-text"
+					style={{
+						display: "flex",
+						marginBottom: "10px",
+						textAlign: "left",
+						justifyContent: "left",
+						alignItems: "center",
+					}}
+				>
+					<div style={{ display: "flex" }}>
 						{countProducts === 0 ? "No" : countProducts} Results
 						<strong>
 							{query !== "all" && " : " + query}
@@ -174,111 +241,50 @@ function SearchScreen() {
 						) : null}
 					</div>
 				</div>
-				<div style={{ display: "flex" }}>
-					<div className="text-end">
-						<div className="text-end-text">Sort By </div>
-						<select
-							className="sort-select"
-							value={order}
-							onChange={(e) => {
-								navigate(
-									getFilterUrl({
-										order: e.target.value,
-									})
-								);
-							}}
-						>
-							<option value="newest">Newest Arrivals</option>
-							<option value="lowest">Price: Low to High</option>
-							<option value="highest">Price: High to Low</option>
-						</select>
-					</div>
-
-					<div className="text-end">
-						<div className="text-end-text">Category </div>
-						<select
-							className="sort-select"
-							value={category}
-							onChange={(e) => {
-								const selectedCategory = e.target.value;
-								window.location.href = getFilterUrl({
-									category: selectedCategory,
-								});
-							}}
-						>
-							<option value="all">Category</option>
-							{categories.map((c) => (
-								<option key={c.category} value={c.category}>
-									{c.category}
-								</option>
-							))}
-						</select>
-					</div>
-
-					<div className="text-end">
-						<div className="text-end-text">Price </div>
-						<select
-							className="sort-select"
-							value={price}
-							onChange={(e) => {
-								const selectedPrice = e.target.value;
-								window.location.href = getFilterUrl({
-									price: selectedPrice,
-								});
-							}}
-						>
-							<option value="all">Price</option>
-							{prices.map((p) => (
-								<option key={p.value} value={p.value}>
-									{p.name}
-								</option>
-							))}
-						</select>
-					</div>
-				</div>
-			</div>
-
-			{!loading && products && products.length === 0 && (
-				<MessageBox>No Product Found</MessageBox>
-			)}
-			<div>
-				{loading ? (
-					<LoadingBox />
-				) : error ? (
-					<MessageBox variant="danger">{error}</MessageBox>
-				) : (
-					<div className="products">
-						{products.slice(0, 8).map((product) => (
-							<Products product={product}></Products>
-						))}
-					</div>
+				{!loading && products && products.length === 0 && (
+					<MessageBox style={{ width: "100%" }}>
+						No Product Found
+					</MessageBox>
 				)}
-			</div>
+				<div>
+					{loading ? (
+						<LoadingBox />
+					) : error ? (
+						<MessageBox variant="danger">{error}</MessageBox>
+					) : (
+						<div className="products">
+							{products.slice(0, 8).map((product) => (
+								<Products product={product}></Products>
+							))}
+						</div>
+					)}
+				</div>
 
-			<div style={{ marginBottom: "20px" }}>
-				{[...Array(pages).keys()].map((x) => (
-					<LinkContainer
-						key={x + 1}
-						className="mx-1"
-						to={{
-							pathname: "/search",
-							search: getFilterUrl({ page: x + 1 }, true),
-						}}
-					>
-						<Button
-							variant="contained"
-							sx={{
-								backgroundColor: "black",
-								marginTop: "20px",
+				<div style={{ marginBottom: "20px" }}>
+					{[...Array(pages).keys()].map((x) => (
+						<LinkContainer
+							key={x + 1}
+							className="mx-1"
+							to={{
+								pathname: "/search",
+								search: getFilterUrl({ page: x + 1 }, true),
 							}}
-							className={
-								Number(page) === x + 1 ? "text-bold" : ""
-							}
 						>
-							{x + 1}
-						</Button>
-					</LinkContainer>
-				))}
+							<Button
+								variant="contained"
+								sx={{
+									backgroundColor: "black",
+									marginTop: "20px",
+								}}
+								className={
+									Number(page) === x + 1 ? "text-bold" : ""
+								}
+							>
+								{x + 1}
+							</Button>
+						</LinkContainer>
+					))}
+				</div>
 			</div>
 		</div>
 	);

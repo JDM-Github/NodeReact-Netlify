@@ -432,7 +432,7 @@ class OrderRouter {
 	async deleteOrder(req, res) {
 		const order = await Order.findByPk(req.params.id);
 		if (order) {
-			await order.deleteOne();
+			await order.destroy();
 			res.send({ message: "ORDER IS SUCCESSFULLY DELETED" });
 		} else {
 			res.status(404).send({ message: "ORDER DO NOT EXIST. ERROR" });
@@ -602,11 +602,7 @@ class ProductController {
 			isAuth,
 			expressAsyncHandler(this.updateProduct)
 		);
-		this.router.delete(
-			"/:id",
-			isAuth,
-			expressAsyncHandler(this.deleteProduct)
-		);
+		this.router.delete("/:id", expressAsyncHandler(this.deleteProduct));
 		this.router.get(
 			"/admin",
 			isAuth,
@@ -846,7 +842,7 @@ class ProductController {
 	async deleteProduct(req, res) {
 		const product = await Product.findByPk(req.params.id);
 		if (product) {
-			await product.deleteOne();
+			await product.destroy();
 			res.send({ message: "Product Deleted" });
 		} else {
 			res.status(404).send({ message: "Product Not Found" });

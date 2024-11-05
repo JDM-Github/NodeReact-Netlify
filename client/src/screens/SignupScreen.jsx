@@ -141,7 +141,7 @@ function SignupScreen() {
 			return;
 		}
 		try {
-			setShowModal(true);
+			// setShowModal(true);
 			const data = await RequestHandler.handleRequest(
 				"post",
 				`users/signup`,
@@ -152,25 +152,29 @@ function SignupScreen() {
 					suffix,
 					email,
 					password,
+					bday,
 				}
 			);
-			const intervalId = setInterval(async () => {
-				try {
-					const data = await RequestHandler.handleRequest(
-						"get",
-						`users/check-verification-status?email=${email}`
-					);
-					if (data.isVerified) {
-						clearInterval(intervalId);
-						setmodalMessage("The email successfully verified!");
-						setTimeout(() => {
-							navigate("/signin");
-						}, 3000);
-					}
-				} catch (error) {
-					toast.error(getError(error));
-				}
-			});
+			toast.success(data.message);
+
+			// THIS IS NOT GOOD
+			// const intervalId = setInterval(async () => {
+			// 	try {
+			// 		const data = await RequestHandler.handleRequest(
+			// 			"get",
+			// 			`users/check-verification-status?email=${email}`
+			// 		);
+			// 		if (data.isVerified) {
+			// 			clearInterval(intervalId);
+			// 			setmodalMessage("The email successfully verified!");
+			// 			setTimeout(() => {
+			// 				navigate("/signin");
+			// 			}, 3000);
+			// 		}
+			// 	} catch (error) {
+			// 		toast.error(getError(error));
+			// 	}
+			// });
 		} catch (err) {
 			toast.error(getError(err));
 		}

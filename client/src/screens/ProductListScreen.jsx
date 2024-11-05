@@ -142,6 +142,7 @@ function ProductListScreen() {
 				);
 				toast.success("PRODUCT HAS BEEN DELETED");
 				dispatch({ type: "DELETE_SUCCESS" });
+				fetchArchivedProducts();
 			} catch (error) {
 				toast.error(getError(error));
 				dispatch({
