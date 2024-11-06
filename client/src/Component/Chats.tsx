@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 import "./Chats.scss";
 
 import RequestHandler from "../Functions/RequestHandler.js";
@@ -12,6 +12,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import FormMaker from "./FormMaker.tsx";
 
 function Message({
 	text,
@@ -21,7 +22,21 @@ function Message({
 	onReply,
 	onDelete,
 	chatPartner,
+	openForm,
 }) {
+	const isOffer =
+		text.startsWith("::service::") && text.includes("::price::");
+	const offerDetails = isOffer
+		? text.match(/::service::"(.+?)",::price::"(\d+?)"/)
+		: null;
+
+	const service = offerDetails ? offerDetails[1] : null;
+	const price = offerDetails ? offerDetails[2] : null;
+	const id = offerDetails ? offerDetails[3] : 1;
+	const serviceUrl = offerDetails
+		? offerDetails[4]
+		: "https://i.pinimg.com/736x/f7/ac/88/f7ac88a1963942fe198262445a200595.jpg";
+
 	return (
 		<>
 			{replyText && replyText !== "" ? (
@@ -38,8 +53,30 @@ function Message({
 					</div>
 				</>
 			) : null}
-			<div className={`message ${isSent ? "sent" : "received"}`}>
-				{text}
+			<div
+				className={`message ${isSent ? "sent" : "received"} ${
+					isOffer ? "offer-message" : ""
+				}`}
+			>
+				{/* Display formatted offer if it is an offer message */}
+				{isOffer ? (
+					<>
+						<div className="offer-details">
+							<strong>Service:</strong> {service} <br />
+							<strong>Price:</strong> ${price}
+						</div>
+						<button
+							className="take-offer-button"
+							onClick={() => {
+								openForm(service, id, serviceUrl);
+							}}
+						>
+							Take Offer
+						</button>
+					</>
+				) : (
+					<>{text}</>
+				)}
 				<div className="message-buttons">
 					<button onClick={onReply}>
 						<FontAwesomeIcon icon={faReply} />
@@ -67,6 +104,25 @@ export default function ChatWindow({ chatPartner, partnerId = "" }) {
 	const [newMessage, setNewMessage] = useState("");
 	const [replyMessage, setReplyMessage] = useState("");
 	const [replyUser, setReplyUser] = useState("");
+
+	const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+	const [selectedService, setSelectedService] = useState("");
+	const [price, setPrice] = useState("");
+
+	const createOffer = () => {
+		setIsOfferModalOpen(true);
+	};
+
+	const submitOffer = () => {
+		const service = JSON.parse(selectedService);
+
+		const offerString = `::service::"${service.serviceName}",::price::"${price}",::id::"${service.id}",::serviceUrl::"${service.serviceUrl}"`;
+
+		handleSendMessage(offerString);
+		setIsOfferModalOpen(false);
+		setSelectedService("");
+		setPrice("");
+	};
 
 	interface Message {
 		sender: string;
@@ -129,7 +185,7 @@ export default function ChatWindow({ chatPartner, partnerId = "" }) {
 			getAllMessage();
 			scrollDown("instant");
 		}
-	}, []);
+	}, [chatPartner]);
 
 	useEffect(() => {
 		if (allMessages) {
@@ -138,13 +194,16 @@ export default function ChatWindow({ chatPartner, partnerId = "" }) {
 		}
 	}, [allMessages]);
 
-	const handleSendMessage = async () => {
-		if (newMessage.trim()) {
+	const handleSendMessage = async (message = "") => {
+		let targetMessage = newMessage;
+		if (message !== "") targetMessage = message;
+
+		if (targetMessage.trim()) {
 			const newMess = {
 				sender: user.id,
 				replyText: replyMessage,
 				replyTo: replyUser,
-				text: newMessage,
+				text: targetMessage,
 			};
 			if (allMessages) {
 				const updatedMessages = allMessages.messages
@@ -181,54 +240,191 @@ export default function ChatWindow({ chatPartner, partnerId = "" }) {
 		// setMessages(messages.filter((_, i) => i !== index));
 	};
 
+	interface Service {
+		id: number;
+		serviceName: string;
+		serviceURL: string;
+		serviceImg: string;
+		serviceDescription: string;
+	}
+
+	const AllTarget = {
+		// "DTI REGISTRATION": <DTIRegistration />,
+	};
+
+	const [formname, setFormName] = useState<string>();
+	const [showForm, setShowForm] = useState(false);
+	const [showDetails, setShowDetails] = useState(false);
+	const [targetForm, setTargetForm] = useState<ReactElement | null>(null);
+	const [formlink, setFormLink] = useState<string>("");
+	const [formid, setFormId] = useState<string>("");
+	const [formimg, setFormImg] = useState("");
+	const [description, setDescription] = useState("");
+
+	const [services, setServices] = useState<Service[]>();
+	const removeForm = () => {
+		setShowForm(false);
+		setTargetForm(null);
+	};
+
+	const getAllService = async () => {
+		try {
+			const data = await RequestHandler.handleRequest(
+				"post",
+				"service/get_services"
+			);
+
+			if (data.success) {
+				setServices(data.services);
+			} else {
+				toast.error(
+					data.message ||
+						"Reloading services failed, please check your credentials."
+				);
+			}
+		} catch (error) {
+			toast.error(`An error occurred. ${error}`);
+		}
+	};
+
+	useEffect(() => {
+		getAllService();
+	}, []);
+
+	const handleShowForm = (target, id, link) => {
+		setFormName(target);
+		setTargetForm(AllTarget[target] || null);
+		setFormLink(link);
+		setFormId(id);
+		setShowForm(true);
+	};
+
+	const handleShowDetailed = (target, image, desc) => {
+		setFormName(target);
+		setFormImg(image);
+		setDescription(desc);
+		setShowDetails(true);
+	};
+
 	return (
-		<div className="chat-window">
-			<div className="chat-header">
-				<div>{chatPartner}</div>
-			</div>
-			<div className="message-container">
-				{allMessages &&
-					allMessages.messages &&
-					allMessages.messages.length > 0 &&
-					allMessages.messages?.map((message, index) => (
-						<Message
-							key={index}
-							text={message.text}
-							isSent={message.sender == user.id}
-							replyText={message.replyText}
-							replyTo={
-								message.replyTo == user.id
-									? message.sender == user.id
-										? "yourself"
-										: "himself"
-									: chatPartner
-							}
-							onReply={() => handleReply(index)}
-							onDelete={() => handleDelete(index)}
-							chatPartner={chatPartner}
-						/>
-					))}
-				<div ref={messagesEndRef} />
-			</div>
-			{replyMessage && replyMessage !== "" ? (
-				<div className="reply-input">
-					<b>
-						Replying to{" "}
-						{replyUser == user.id ? "yourself" : chatPartner}
-					</b>
-					: {replyMessage}
+		<>
+			<div className="chat-window">
+				<div className="chat-header">
+					<div>{chatPartner}</div>
 				</div>
-			) : null}
-			<div className="message-input">
-				<input
-					type="text"
-					value={newMessage}
-					onChange={(e) => setNewMessage(e.target.value)}
-					placeholder="Type a message..."
-					onKeyDown={handleKeyDown}
-				/>
-				<button onClick={handleSendMessage}>Send</button>
+				<div className="message-container">
+					{allMessages &&
+						allMessages.messages &&
+						allMessages.messages.length > 0 &&
+						allMessages.messages?.map((message, index) => (
+							<Message
+								key={index}
+								text={message.text}
+								isSent={message.sender == user.id}
+								replyText={message.replyText}
+								replyTo={
+									message.replyTo == user.id
+										? message.sender == user.id
+											? "yourself"
+											: "himself"
+										: chatPartner
+								}
+								onReply={() => handleReply(index)}
+								onDelete={() => handleDelete(index)}
+								chatPartner={chatPartner}
+								openForm={handleShowForm}
+							/>
+						))}
+					<div ref={messagesEndRef} />
+				</div>
+				{replyMessage && replyMessage !== "" ? (
+					<div className="reply-input">
+						<b>
+							Replying to{" "}
+							{replyUser == user.id ? "yourself" : chatPartner}
+						</b>
+						: {replyMessage}
+					</div>
+				) : null}
+				<div className="message-input">
+					<input
+						type="text"
+						value={newMessage}
+						onChange={(e) => setNewMessage(e.target.value)}
+						placeholder="Type a message..."
+						onKeyDown={handleKeyDown}
+					/>
+
+					{user.id === "ADMIN" && (
+						<button className="offer" onClick={createOffer}>
+							Create Offer
+						</button>
+					)}
+					<button onClick={() => handleSendMessage()}>Send</button>
+				</div>
+
+				{isOfferModalOpen && (
+					<div className="chat-offer-modal-overlay">
+						<div className="modal">
+							<h3>Create Offer</h3>
+							<label>
+								Service:
+								<select
+									value={selectedService}
+									onChange={(e) =>
+										setSelectedService(e.target.value)
+									}
+								>
+									<option value="" disabled>
+										Select a service
+									</option>
+									{services &&
+										services.map((service, index) => (
+											<option
+												key={index}
+												value={JSON.stringify(service)}
+											>
+												{service.serviceName}
+											</option>
+										))}
+								</select>
+							</label>
+							<label>
+								Price:
+								<input
+									type="number"
+									value={price}
+									onChange={(e) => setPrice(e.target.value)}
+									placeholder="Enter price"
+								/>
+							</label>
+							<div className="modal-buttons">
+								<button
+									className="submit-button"
+									onClick={submitOffer}
+								>
+									Submit Offer
+								</button>
+								<button
+									className="cancel-button"
+									onClick={() => setIsOfferModalOpen(false)}
+								>
+									Cancel
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
-		</div>
+			{showForm && (
+				<FormMaker
+					removeForm={removeForm}
+					formComp={targetForm}
+					formName={formname}
+					formLink={formlink}
+					serviceId={formid}
+				/>
+			)}
+		</>
 	);
 }

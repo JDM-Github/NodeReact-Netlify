@@ -50,7 +50,7 @@ export default function Navigation({ status, Nav, setIsOpen }) {
 			</div>
 
 			<>
-				{setIsOpen && (
+				{/* {setIsOpen && (
 					<div
 						className={`subscribe ${user.membership}`}
 						onClick={() => setIsOpen(true)}
@@ -59,7 +59,7 @@ export default function Navigation({ status, Nav, setIsOpen }) {
 							? "SUBSCRIBE"
 							: user.membership}
 					</div>
-				)}
+				)} */}
 			</>
 
 			<hr

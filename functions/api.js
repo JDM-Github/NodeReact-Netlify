@@ -19,7 +19,7 @@ class App {
 	constructor() {
 		this.app = express();
 		this.router = express.Router();
-		this.DEVELOPMENT = true;
+		this.DEVELOPMENT = false;
 
 		this.setupMiddleware();
 		this.setupRoutes();

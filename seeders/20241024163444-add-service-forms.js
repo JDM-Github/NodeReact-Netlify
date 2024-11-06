@@ -52,7 +52,15 @@ module.exports = {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			},
-			
+			{
+				serviceName: "SEC",
+				serviceURL:
+					"https://www.pdffiller.com/preview/33/900/33900017.png",
+				serviceImg: "https://cdn.worldvectorlogo.com/logos/sec-1.svg",
+				serviceDescription: "This is a SEC description",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
 		]);
 	},
 

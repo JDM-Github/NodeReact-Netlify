@@ -116,6 +116,11 @@ export default function LoginPage() {
 							placeholder="Email"
 							value={loginInfo.email}
 							onChange={handleLoginInfo}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									handleLogin();
+								}
+							}}
 							required
 						/>
 						<input
@@ -124,9 +129,22 @@ export default function LoginPage() {
 							placeholder="Password"
 							value={loginInfo.password}
 							onChange={handleLoginInfo}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									handleLogin();
+								}
+							}}
 							required
 						/>
-						<button type="submit" onClick={handleLogin}>
+						<button
+							type="submit"
+							onClick={handleLogin}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									handleLogin();
+								}
+							}}
+						>
 							LOGIN
 						</button>
 						<center>
