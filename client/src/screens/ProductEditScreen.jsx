@@ -62,7 +62,7 @@ function ProductEditScreen() {
 	const [image, setImage] = useState("");
 	const [images, setImages] = useState([]);
 	const [category, setCategory] = useState("");
-	const [countInStock, setCountInStock] = useState("");
+	const [countInStock, setCountInStock] = useState("0");
 	const [brand, setBrand] = useState("");
 	const [description, setDescription] = useState("");
 
@@ -205,7 +205,7 @@ function ProductEditScreen() {
 					<Form.Group className="mb-3" controlId="image">
 						<Form.Label>Image</Form.Label>
 						<Form.Control
-							value="loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem"
+							value={image}
 							onChange={(e) => setImage(e.target.value)}
 							readOnly
 						/>
@@ -277,14 +277,14 @@ function ProductEditScreen() {
 						/>
 					</Form.Group>
 
-					<Form.Group className="mb-3" controlId="countInStock">
+					{/* <Form.Group className="mb-3" controlId="countInStock">
 						<Form.Label>Count In Stock</Form.Label>
 						<Form.Control
 							value={countInStock}
 							onChange={(e) => setCountInStock(e.target.value)}
 							required
 						/>
-					</Form.Group>
+					</Form.Group> */}
 
 					<Form.Group className="mb-3" controlId="description">
 						<Form.Label>Description</Form.Label>

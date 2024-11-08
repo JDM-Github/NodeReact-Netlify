@@ -136,6 +136,7 @@ function OrderScreen() {
 
 		try {
 			setLoadingUpload(true);
+
 			const data = await RequestHandler.handleRequest(
 				"put",
 				`orders/${order.id}/deliver`,
@@ -147,7 +148,6 @@ function OrderScreen() {
 					},
 				}
 			);
-
 			dispatch({ type: "DELIVER_SUCCESS", payload: data });
 			toast.success("Order delivered successfully!");
 		} catch (err) {

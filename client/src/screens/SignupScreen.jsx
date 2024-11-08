@@ -220,6 +220,7 @@ function SignupScreen() {
 										onChange={(e) =>
 											setName(e.target.value)
 										}
+										required={true}
 									/>
 									<CreateTextField
 										type="middlename"
@@ -227,6 +228,7 @@ function SignupScreen() {
 										onChange={(e) =>
 											setMiddleName(e.target.value)
 										}
+										required={true}
 									/>
 									<CreateTextField
 										type="lastname"
@@ -234,6 +236,7 @@ function SignupScreen() {
 										onChange={(e) =>
 											setLastName(e.target.value)
 										}
+										required={true}
 									/>
 								</div>
 							</Form.Group>
@@ -265,6 +268,7 @@ function SignupScreen() {
 										}
 										onChange={handleBday}
 										value={bday}
+										required={true}
 									/>
 									<ToastContainer />
 								</div>
@@ -276,6 +280,7 @@ function SignupScreen() {
 									onChange={handleEmailChange}
 									error={Boolean(emailError)}
 									helperText={emailError}
+									required={true}
 								/>
 							</Form.Group>
 							<Form.Group controlId="password">
@@ -285,6 +290,7 @@ function SignupScreen() {
 									onChange={(e) =>
 										setPassword(e.target.value)
 									}
+									required={true}
 								/>
 							</Form.Group>
 
@@ -316,6 +322,7 @@ function SignupScreen() {
 									onChange={(e) =>
 										setConfirmPassword(e.target.value)
 									}
+									required={true}
 								/>
 							</Form.Group>
 							<button

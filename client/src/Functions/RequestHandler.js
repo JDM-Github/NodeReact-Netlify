@@ -5,7 +5,7 @@ class RequestHandler {
 		const development = false;
 		const baseURL = development
 			? "http://localhost:8888"
-			: "https://kca-test-website.netlify.app";
+			: "https://rybofficialstore.netlify.app";
 
 		const methodUse = method.toLowerCase();
 		const axiosMethod =

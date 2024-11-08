@@ -91,7 +91,7 @@ userRouter.get(
                 <div class="container">
                     <h1>Email Verified</h1>
                     <p>Your email has been successfully verified!</p>
-                    <a href="https://kca-test-website.netlify.app/signin" class="button">Sign in</a>
+                    <a href="https://rybofficialstore.netlify.app/signin" class="button">Sign in</a>
                 </div>
 
             </body>
@@ -122,9 +122,9 @@ userRouter.post(
 			expiresIn: "1h",
 		});
 
-		const resetUrl = `https://kca-test-website.netlify.app/reset-password?token=${resetToken}`;
+		const resetUrl = `https://rybofficialstore.netlify.app/reset-password?token=${resetToken}`;
 		const mailOptions = {
-			from: "kcaligam@ccc.edu.ph",
+			from: `"RYB Officials"<${"kcaligam@ccc.edu.ph"}>`,
 			to: user.email,
 			subject: "Password Reset",
 			html: `
@@ -292,7 +292,7 @@ userRouter.post(
 		});
 		const user = await newUser.save();
 
-		const verificationUrl = `https://kca-test-website.netlify.app/.netlify/functions/api/users/verify-email?token=${verificationToken}`;
+		const verificationUrl = `https://rybofficialstore.netlify.app/.netlify/functions/api/users/verify-email?token=${verificationToken}`;
 		const mailOptions = {
 			from: `"RYB Officials"<${"kcaligam@ccc.edu.ph"}>`,
 			to: user.email,

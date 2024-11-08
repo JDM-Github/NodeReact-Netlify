@@ -33,9 +33,9 @@ export default function Navigation({ userInfo, cart, signoutHandler }) {
 						}}
 						ml="15px"
 						fontWeight="bold"
-						// fontSize="3rem"
+						fontSize="1rem"
 					>
-						RYB
+						RYB OFFICIAL
 					</Typography>
 				</LinkContainer>
 

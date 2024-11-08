@@ -3,6 +3,7 @@ const expressAsyncHandler = require("express-async-handler");
 const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
 const streamifier = require("streamifier");
+const nodemailer = require("nodemailer");
 
 const { Op } = require("sequelize");
 const { isAuth, isAdmin } = require("./utils.js");
@@ -313,10 +314,10 @@ class OrderRouter {
 		);
 
 		// this.router.put(
-		// 	"/:id/deliver",
-		// 	isAuth,
-		// 	this.upload.single("image"),
-		// 	expressAsyncHandler(this.uploadProofOfDelivery)
+		//  "/:id/deliver",
+		//  isAuth,
+		//  this.upload.single("image"),
+		//  expressAsyncHandler(this.uploadProofOfDelivery)
 		// );
 	}
 
@@ -403,8 +404,40 @@ class OrderRouter {
 			order.proofOfDeliveryImage = imageUrl;
 			order.isDelivered = true;
 			order.deliveredAt = Date.now();
-
 			await order.save();
+
+			const user = await User.findByPk(order.userId);
+			if (user) {
+				console.log(user);
+				const mailOptions = {
+					from: `"RYB Officials"<${"kcaligam@ccc.edu.ph"}>`,
+					to: user.email,
+					subject: "Your order has arrived!",
+					html: `
+                    <div style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: #4CAF50;">🎉 Order Delivered Successfully!</h2>
+                        <p>Hi ${user.name},</p>
+                        <p>We are pleased to inform you that your order <strong>#${
+							order.id
+						}</strong> has been successfully delivered.</p>
+                        <p>Here is the proof of delivery:</p>
+                        <img src="${imageUrl}" alt="Proof of Delivery" style="max-width: 100%; height: auto; border-radius: 10px;"/>
+                        <p>Thank you for shopping with us!</p>
+                        <hr style="border: none; border-top: 1px solid #eee;"/>
+                        <p style="font-size: 0.9em;">For any queries, please contact us at <a href="mailto:kcaligam@ccc.edu.ph">kcaligam@ccc.edu.ph</a></p>
+                        <p style="font-size: 0.8em; color: #888;">&copy; ${new Date().getFullYear()} Your Company. All rights reserved.</p>
+                    </div>`,
+				};
+
+				const transporter = nodemailer.createTransport({
+					service: "gmail",
+					auth: {
+						user: "kcaligam@ccc.edu.ph",
+						pass: "qmcm hhlk pohs vyrh",
+					},
+				});
+				await transporter.sendMail(mailOptions);
+			}
 			res.send(order);
 		} else {
 			res.status(404).send({ message: "ORDER NOT FOUND" });
@@ -459,14 +492,14 @@ class OrderRouter {
 
 			const dailyOrders = await sequelize.query(
 				`
-				SELECT 
-					TO_CHAR("createdAt", 'MM-DD-YYYY') AS "date", 
-					COUNT("id") AS "orders", 
-					SUM("totalPrice") AS "sales" 
-				FROM "Orders" 
-				GROUP BY TO_CHAR("createdAt", 'MM-DD-YYYY') 
-				ORDER BY MIN("createdAt") ASC;
-				`,
+                SELECT 
+                    TO_CHAR("createdAt", 'MM-DD-YYYY') AS "date", 
+                    COUNT("id") AS "orders", 
+                    SUM("totalPrice") AS "sales" 
+                FROM "Orders" 
+                GROUP BY TO_CHAR("createdAt", 'MM-DD-YYYY') 
+                ORDER BY MIN("createdAt") ASC;
+                `,
 				{ model: Order, mapToModel: true }
 			);
 
@@ -486,81 +519,81 @@ class OrderRouter {
 	}
 
 	// async getOrderSummary(req, res) {
-	// 	const orders = await Order.aggregate([
-	// 		{
-	// 			$group: {
-	// 				id: null,
-	// 				numOrders: { $sum: 1 },
-	// 				totalSales: { $sum: "$totalPrice" },
-	// 			},
-	// 		},
-	// 	]);
+	//  const orders = await Order.aggregate([
+	//      {
+	//          $group: {
+	//              id: null,
+	//              numOrders: { $sum: 1 },
+	//              totalSales: { $sum: "$totalPrice" },
+	//          },
+	//      },
+	//  ]);
 
-	// 	const users = await User.aggregate([
-	// 		{
-	// 			$group: {
-	// 				id: null,
-	// 				numUsers: { $sum: 1 },
-	// 			},
-	// 		},
-	// 	]);
+	//  const users = await User.aggregate([
+	//      {
+	//          $group: {
+	//              id: null,
+	//              numUsers: { $sum: 1 },
+	//          },
+	//      },
+	//  ]);
 
-	// 	const dailyOrders = await Order.aggregate([
-	// 		{
-	// 			$group: {
-	// 				id: {
-	// 					$dateToString: {
-	// 						format: "%m-%d-%Y",
-	// 						date: "$createdAt",
-	// 					},
-	// 				},
-	// 				orders: { $sum: 1 },
-	// 				sales: { $sum: "$totalPrice" },
-	// 			},
-	// 		},
-	// 		{ $sort: { id: 1 } },
-	// 	]);
+	//  const dailyOrders = await Order.aggregate([
+	//      {
+	//          $group: {
+	//              id: {
+	//                  $dateToString: {
+	//                      format: "%m-%d-%Y",
+	//                      date: "$createdAt",
+	//                  },
+	//              },
+	//              orders: { $sum: 1 },
+	//              sales: { $sum: "$totalPrice" },
+	//          },
+	//      },
+	//      { $sort: { id: 1 } },
+	//  ]);
 
-	// 	const productCategories = await Product.aggregate([
-	// 		{
-	// 			$group: {
-	// 				id: "$category",
-	// 				count: { $sum: 1 },
-	// 			},
-	// 		},
-	// 	]);
+	//  const productCategories = await Product.aggregate([
+	//      {
+	//          $group: {
+	//              id: "$category",
+	//              count: { $sum: 1 },
+	//          },
+	//      },
+	//  ]);
 
-	// 	res.send({ users, orders, dailyOrders, productCategories });
+	//  res.send({ users, orders, dailyOrders, productCategories });
 	// }
 
 	// Multer upload configuration
 	// get upload() {
-	// 	const storage = multer.diskStorage({
-	// 		destination(req, file, cb) {
-	// 			cb(null, "uploads/proofOfDelivery/");
-	// 		},
-	// 		filename(req, file, cb) {
-	// 			cb(null, `${Date.now()}-${file.originalname}`);
-	// 		},
-	// 	});
+	//  const storage = multer.diskStorage({
+	//      destination(req, file, cb) {
+	//          cb(null, "uploads/proofOfDelivery/");
+	//      },
+	//      filename(req, file, cb) {
+	//          cb(null, `${Date.now()}-${file.originalname}`);
+	//      },
+	//  });
 
-	// 	return multer({
-	// 		storage,
-	// 		limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
-	// 	});
+	//  return multer({
+	//      storage,
+	//      limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+	//  });
 	// }
 
 	// async uploadProofOfDelivery(req, res) {
-	// 	const order = await Order.findByPk(req.params.id);
-	// 	if (order) {
-	// 		order.isDelivered = true;
-	// 		order.deliveredAt = Date.now();
-	// 		order.proofOfDeliveryImage = req.file.path.replace(/\\/g, "/");
-	// 		await order.save();
-	// 		res.send({ message: "Order is being delivered", order });
-	// 	} else {
-	// 		res.status(404).send({ message: "Order not found" });
-	// 	}
+	//  const order = await Order.findByPk(req.params.id);
+	//  if (order) {
+	//      order.isDelivered = true;
+	//      order.deliveredAt = Date.now();
+	//      order.proofOfDeliveryImage = req.file.path.replace(/\\/g, "/");
+	//      await order.save();
+	//      res.send({ message: "Order is being delivered", order });
+	//  } else {
+	//      res.status(404).send({ message: "Order not found" });
+	//  }
 	// }
 }
 
@@ -609,9 +642,9 @@ class ProductController {
 			expressAsyncHandler(this.getAdminProducts)
 		);
 		// this.router.post(
-		// 	"/:id/reviews",
-		// 	isAuth,
-		// 	expressAsyncHandler(this.addReview)
+		//  "/:id/reviews",
+		//  isAuth,
+		//  expressAsyncHandler(this.addReview)
 		// );
 		this.router.post(
 			"/review-check",
@@ -873,36 +906,36 @@ class ProductController {
 	}
 
 	// async addReview(req, res) {
-	// 	const product = await Product.findByPk(req.params.id);
-	// 	if (product) {
-	// 		if (product.reviews.find((x) => x.name === req.user.name)) {
-	// 			return res
-	// 				.status(400)
-	// 				.send({ message: "You Already Submitted a Review" });
-	// 		}
+	//  const product = await Product.findByPk(req.params.id);
+	//  if (product) {
+	//      if (product.reviews.find((x) => x.name === req.user.name)) {
+	//          return res
+	//              .status(400)
+	//              .send({ message: "You Already Submitted a Review" });
+	//      }
 
-	// 		const review = {
-	// 			name: req.user.name,
-	// 			rating: Number(req.body.rating),
-	// 			comment: req.body.comment,
-	// 		};
-	// 		product.reviews.push(review);
-	// 		product.numReviews = product.reviews.length;
-	// 		product.rating =
-	// 			product.reviews.reduce((a, c) => c.rating + a, 0) /
-	// 			product.reviews.length;
-	// 		const updatedProduct = await product.save();
-	// 		res.status(201).send({
-	// 			message: "Review Created",
-	// 			review: updatedProduct.reviews[
-	// 				updatedProduct.reviews.length - 1
-	// 			],
-	// 			numReviews: product.numReviews,
-	// 			rating: product.rating,
-	// 		});
-	// 	} else {
-	// 		res.status(404).send({ message: "Product Not Found" });
-	// 	}
+	//      const review = {
+	//          name: req.user.name,
+	//          rating: Number(req.body.rating),
+	//          comment: req.body.comment,
+	//      };
+	//      product.reviews.push(review);
+	//      product.numReviews = product.reviews.length;
+	//      product.rating =
+	//          product.reviews.reduce((a, c) => c.rating + a, 0) /
+	//          product.reviews.length;
+	//      const updatedProduct = await product.save();
+	//      res.status(201).send({
+	//          message: "Review Created",
+	//          review: updatedProduct.reviews[
+	//              updatedProduct.reviews.length - 1
+	//          ],
+	//          numReviews: product.numReviews,
+	//          rating: product.rating,
+	//      });
+	//  } else {
+	//      res.status(404).send({ message: "Product Not Found" });
+	//  }
 	// }
 
 	async searchProducts(req, res) {
@@ -1066,17 +1099,17 @@ class UploadController {
 	constructor() {
 		this.router = express.Router();
 		// this.storage = multer.diskStorage({
-		// 	destination(req, file, cb) {
-		// 		cb(null, "uploads/");
-		// 	},
-		// 	filename(req, file, cb) {
-		// 		cb(null, `${Date.now()}-${file.originalname}`);
-		// 	},
+		//  destination(req, file, cb) {
+		//      cb(null, "uploads/");
+		//  },
+		//  filename(req, file, cb) {
+		//      cb(null, `${Date.now()}-${file.originalname}`);
+		//  },
 		// });
 
 		// this.upload = multer({
-		// 	storage: this.storage,
-		// 	limits: { fileSize: 5 * 1024 * 1024 },
+		//  storage: this.storage,
+		//  limits: { fileSize: 5 * 1024 * 1024 },
 		// });
 
 		this.routes();
